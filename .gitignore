@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+*.manifest
+*.spec
+
+# Virtual environments
+.venv/
+env/
+venv/
+ENV/
+pip-wheel-metadata/
+*.log
+
+# Jupyter
+.ipynb_checkpoints
+
+# VSCode
+.vscode/
+
+# macOS
+.DS_Store
+
+# Linux
+*~
+
+# Test & coverage
+htmlcov/
+.tox/
+.nox/
+.coverage
+.cache
+pytest_cache/
+.pytest_cache/
+nosetests.xml
+coverage.xml
+
+# MyPy
+.mypy_cache/
+
+# PyInstaller
+*.spec
+
+# IDE 설정 (JetBrains 등)
+.idea/
+*.iml
+
+# Local secrets or credentials
+.env
+*.env
