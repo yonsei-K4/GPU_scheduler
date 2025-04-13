@@ -33,9 +33,15 @@ def resnet18(req: func.HttpRequest) -> func.HttpResponse:
         else:
             model= req_body.get('valid')
     
-    model_list = ["../profile/resnet18.onnx"]
+    model_list = ["../profile/resnet18.onnx",
+                  "../profile/resnet50.onnx",
+                  "../profile/alexnet.onnx",
+                  "../profile/vgg19.onnx"]
     runtime_info = {
-        "0": {0: 32},
+        "0": {0: 128},
+        "1": {1: 128},
+        "2": {2: 128},
+        "3": {3: 128}
     }
     ModelRunner(model_list, runtime_info).run_all()
 
