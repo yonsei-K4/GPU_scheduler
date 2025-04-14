@@ -2,26 +2,34 @@ import azure.functions as func
 import logging
 import requests
 from profile.runner import ModelRunner
+from time import sleep
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
 
-@app.route(route="test")
-def test(req: func.HttpRequest) -> func.HttpResponse:
-    return func.HttpResponse(f"Test function is working.")
+@app.route(route="inference")
+def inference(req: func.HttpRequest) -> func.HttpResponse:
+    '''ModelRunner를 통해 모델을 실행하는 함수입니다.'''
+    logging.info('inferencing...')
+    
+    ModelRunner.run_all()
 
-@app.route(route="main")
-def main(req: func.HttpRequest) -> func.HttpResponse:
-    logging.info('Python HTTP trigger function processed a request.')
+    return func.HttpResponse(f"inference finished.")
 
-    # Call the 'test' function
-    test_function_url = req.url.replace("main", "test")  # Adjust URL for 'test' function
-    response = requests.get(test_function_url)
 
-    return func.HttpResponse(f"Response from 'test': {response.text}")
-        
-@app.route(route="resnet18")
-def resnet18(req: func.HttpRequest) -> func.HttpResponse:
-    logging.info('resnet18 function processed a request.')
+@app.route(route="profile")
+def monitor_gpu(req: func.HttpRequest) -> func.HttpResponse:
+    '''GPU 모니터링을 위한 함수입니다.'''
+    logging.info('monitoring gpu...')
+    
+    # GPU 모니터링 로직을 여기에 추가합니다.
+    # 예를 들어, GPU 사용량을 기록하거나 그래프를 생성하는 등의 작업을 수행할 수 있습니다.
+
+    return func.HttpResponse(f"GPU monitoring finished.")
+
+@app.route(route="runner")
+def runner(req: func.HttpRequest) -> func.HttpResponse:
+    '''전체적인 runner'''
+    logging.info('runner processed.')
 
     valid = req.params.get('valid')
     if not valid:
@@ -37,13 +45,17 @@ def resnet18(req: func.HttpRequest) -> func.HttpResponse:
                   "../profile/alexnet.onnx",
                   "../profile/vgg19.onnx"]
     runtime_info = {
-        "0": {0: 128},
-        "1": {1: 128},
-        "2": {2: 128},
-        "3": {3: 128}
+        "0": {0: 128, 1: 128},
+        # "1": {1: 128},
+        # "2": {2: 128},
+        # "3": {3: 128}
     }
-    ModelRunner(model_list, runtime_info).run_all()
+
+    ModelRunner(model_list, runtime_info)
+    sleep(5)
+
+    # Call the 'test' function
+    inference_func_url = req.url.replace("runner", "inference")  # Adjust URL for 'test' function
+    response = requests.get(inference_func_url)
 
     return func.HttpResponse(f"Resnet18 model run successfully")
-
-    
