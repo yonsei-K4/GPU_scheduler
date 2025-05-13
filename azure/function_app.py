@@ -55,13 +55,13 @@ def loader(req: func.HttpRequest) -> func.HttpResponse:
     
     model_list = ["alexnet", "resnet18", "resnet50", "resnext101"]
     providers = {"alexnet": ("CUDAExecutionProvider", {"device_id": 0}),
-                 "resnet18": ("CUDAExecutionProvider", {"device_id": 1}),
-                  "resnet50": ("CUDAExecutionProvider", {"device_id": 2}),
-                    "resnext101": ("CUDAExecutionProvider", {"device_id": 3})
+                 "resnet18": ("CUDAExecutionProvider", {"device_id": 0}),
+                  "resnet50": ("CUDAExecutionProvider", {"device_id": 0}),
+                    "resnext101": ("CUDAExecutionProvider", {"device_id": 0})
                 }
 
     for model_name in model_list:
-        session = SessionManager.fetch_model(model_name, providers[model_name])
+        session = SessionManager.fetch_model(model_name, providers[model_name], batch_size=128)
         if session is None:
             return func.HttpResponse(f"Failed to load model {model_name}", status_code=500)
         else:
