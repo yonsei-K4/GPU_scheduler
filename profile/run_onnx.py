@@ -9,10 +9,10 @@ import argparse
 
 # 0. 명령줄 인자 처리
 parser = argparse.ArgumentParser(description="ONNX Inference with interval control")
-parser.add_argument('--interval', type=float, default=0.05,
-                    help='요청 간격 (초 단위, 기본값: 0.05)')
-parser.add_argument('--duration', type=int, default=60,
-                    help='총 실행 시간 (초 단위, 기본값: 60)')
+parser.add_argument('--interval', type=float, default=0.1,
+                    help='요청 간격 (초 단위, 기본값: 0.1)')
+parser.add_argument('--duration', type=int, default=10,
+                    help='총 실행 시간 (초 단위, 기본값: 10)')
 args = parser.parse_args()
 
 interval = args.interval
@@ -26,7 +26,7 @@ image = dataset["test"]["image"][0]  # PIL.Image 형식
 preprocess = transforms.Compose([
     transforms.Resize(256),
     transforms.CenterCrop(224),
-    transforms.ToTensor(),  # [0, 1]
+    transforms.ToTensor(),  
     transforms.Normalize(mean=[0.485, 0.456, 0.406],
                          std=[0.229, 0.224, 0.225]),
 ])
@@ -34,8 +34,9 @@ img_tensor = preprocess(image).unsqueeze(0)  # 배치 차원 추가
 img_np = img_tensor.numpy()
 
 # 3. ONNX 모델 로드
+so = onnxruntime.SessionOptions(); so.enable_profiling = True
 session = onnxruntime.InferenceSession(
-    "resnext101_32x8d.onnx",
+    "onnx_models/resnext101_32x8d.onnx",
     providers=[
         # "TensorrtExecutionProvider",
         "CUDAExecutionProvider",
@@ -57,5 +58,4 @@ while time.time() - start_time < duration:
     _ = session.run(None, {"input": img_np})
     inference_count += 1
     time.sleep(interval)
-
 print(f"\n✅ 총 요청 수: {inference_count}회 (간격: {interval:.2f}s, 총 {duration}s)")

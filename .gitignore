@@ -62,3 +62,5 @@ coverage.xml
 *.onnx
 *.tar.xz
 workload
+onnx_models
+models/
