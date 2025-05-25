@@ -60,6 +60,8 @@ coverage.xml
 *.ncu-rep
 *.nsys-rep
 *.onnx
+*.sqlite
+*.csv
 *.tar.xz
 workload
 onnx_models

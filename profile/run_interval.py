@@ -36,7 +36,7 @@ img_np = img_tensor.numpy()
 # 3. ONNX 모델 로드
 so = onnxruntime.SessionOptions(); so.enable_profiling = True
 session = onnxruntime.InferenceSession(
-    "onnx_models/resnext101_32x8d.onnx",
+    "onnx_models/resnet152-v1-7.onnx",
     providers=[
         # "TensorrtExecutionProvider",
         "CUDAExecutionProvider",
@@ -55,7 +55,7 @@ inference_count = 0
 print(f"🚀 {interval:.2f}초 간격으로 요청 전송 시작 (총 {duration}초 동안)...")
 
 while time.time() - start_time < duration:
-    _ = session.run(None, {"input": img_np})
+    _ = session.run(None, {"data": img_np})
     inference_count += 1
     time.sleep(interval)
 print(f"\n✅ 총 요청 수: {inference_count}회 (간격: {interval:.2f}s, 총 {duration}s)")
