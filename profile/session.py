@@ -4,7 +4,6 @@ import torch
 import numpy as np
 import onnxruntime
 
-
 class SessionManager:
     sessList = {}
     inputList = {}
@@ -20,12 +19,17 @@ class SessionManager:
         model_path = os.path.join(os.path.dirname(__file__), f"/models/{model_name}.onnx")
         SessionManager.batchList[model_name] = batch_size
 
+        
+            
         # 세션 생성
         session = onnxruntime.InferenceSession(
             model_path,
             providers=[providers]
         )
         SessionManager.sessList[model_name] = session
+
+        if "mask" in model_name.lower():
+            batch_size = 1  
 
         input_dict = {}
 
@@ -36,13 +40,19 @@ class SessionManager:
 
             # 동적 차원 해결
             resolved_shape = []
+            # print(shape)
             for dim in shape:
-                if isinstance(dim, str) or dim is None:
+                if isinstance(dim, str) and dim.startswith("batch"):
                     resolved_shape.append(batch_size)
+                elif isinstance(dim, str) and dim in ["height", "width"]:
+                    resolved_shape.append(640)  # 예시로 640으로 설정\
+                elif isinstance(dim, str) and dim == "sequence":
+                    resolved_shape.append(512)
                 else:
                     resolved_shape.append(dim)
 
             # dtype 처리
+            print(resolved_shape, dtype)
             if "float" in dtype:
                 arr = np.random.randn(*resolved_shape).astype(np.float32)
             elif "int64" in dtype:
@@ -62,12 +72,17 @@ class SessionManager:
         session = SessionManager.sessList[model_name]
         output_name = session.get_outputs()[0].name
         
+
         # height, width = (1, 3, 640, 640)
         inputs = SessionManager.inputList[model_name]
         from time import time_ns
+
+        torch.cuda.nvtx.range_push(f"{model_name}_inference")
         start_time = time_ns()
         outputs = session.run([output_name], inputs)
         exec_time = time_ns() - start_time
+        torch.cuda.nvtx.range_pop()
+        
         output = f"{model_name} output: {exec_time / (10 ** 6)} ms, {outputs[0].shape}"
         
         return output

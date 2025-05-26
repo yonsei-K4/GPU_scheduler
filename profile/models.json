@@ -1,0 +1,10 @@
+{
+  "models": [
+    "mask_rcnn",
+    "bert",
+    "resnet50",
+    "mobilenet_v2",
+    "inception_v4",
+    "squeezenet1_0"
+  ]
+}

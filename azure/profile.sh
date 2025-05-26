@@ -1,12 +1,5 @@
 #!/bin/bash
 
-if [ -z "$1" ]; then
-    echo "❌ 사용법: $0 <파이썬_스크립트명.py>"
-    exit 1
-fi
-
-SCRIPT=$1
-
 # Build 단계는 주석 처리 (필요 시 해제)
 # ./build.sh --config Release --update --build --skip_tests \
 #     --use_cuda --enable_cuda_profiling \
@@ -26,46 +19,14 @@ nsys profile -o run \
     --gpu-metrics-devices=0 \
     --gpu-metrics-frequency=10000 \
     --capture-range=cudaProfilerApi \
-    --capture-range-end=none \
     --force-overwrite=true \
-    --duration=0 \
-   python -u "$SCRIPT"
-sleep 1
+    python bench.py
 
 # ----------------------------
 # NSYS -> SQLite 변환
 # ----------------------------
 echo "[.] Converting nsys report to sqlite..."
 nsys export --type sqlite --force-overwrite=true -o run.sqlite run.nsys-rep
-sleep 1
-
-# ----------------------------
-# NSYS -> CSV 변환
-# ----------------------------
-echo "[.] Extracting data from sqlite..."
-sqlite3 -header -csv run.sqlite "
-SELECT 
-    g.rawTimestamp,
-    g.timestamp,
-    ROUND(g.timestamp / 1e9, 6) AS timestamp_sec,
-    g.metricId,
-    t.metricName,
-    g.value
-FROM 
-    GPU_METRICS g
-JOIN 
-    TARGET_INFO_GPU_METRICS t 
-ON 
-    g.metricId = t.metricId
-WHERE 
-    g.metricId IN (23, 29, 30)
-ORDER BY g.timestamp;
-" > gpu_metrics.csv
-
-sleep 1
-
-# process csv to desired value
-python process_csv.py
 
 # ----------------------------
 # ONNX 노드 - CUDA 커널 매핑
