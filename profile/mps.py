@@ -23,13 +23,24 @@ if not model_list:
 ###############################################################################
 # 2) 모델별 SM 지분(%)
 ###############################################################################
-model_shares = { m : int(100/len(model_list)) for m in model_list }  # 균등 분배
-print("모델별 MPS 지분 설정:", model_shares)
-# model_shares = {               # 원하는 비율로 수정
-#     "yolov5": 30,
-#     "resnet50": 30,
-#     "bert_seq": 40,
+# model_shares = { m : int(100/len(model_list)) for m in model_list }  # 균등 분배
+# print("모델별 MPS 지분 설정:", model_shares)
+# model_shares = {               # version 1.0 not bad
+#     "mask_rcnn" : 50,
+#     "bert" : 5,
+#     "resnet50" : 20,
+#     "mobilenet_v2" : 10,
+#     "inception_v4" : 10,
+#     "squeezenet1_0" : 5, 
 # }
+model_shares = {               # 원하는 비율로 수정
+    "mask_rcnn" : 45,
+    "bert" : 3,
+    "resnet50" : 12,
+    "mobilenet_v2" : 10,
+    "inception_v4" : 20,
+    "squeezenet1_0" : 10, 
+}
 # DEFAULT_SHARE = 20
 
 ###############################################################################
